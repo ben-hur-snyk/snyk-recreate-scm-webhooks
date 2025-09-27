@@ -24,6 +24,7 @@ def print_banner(config: Config):
     print(f"Load Only: {config.load_only}")
     print(f"Reactivate Only: {config.reactivate_only}")
     print(f"Snyk API Version: {config.api_version}")
+    print(f"Threads: {config.threads}")
     print()
 
 
@@ -36,6 +37,7 @@ def initialize(args):
     config.load_only = args.load_only
     config.reactivate_only = args.reactivate_only
     config.api_version = args.api_version
+    config.threads = args.threads
     config.validate()
 
     os.makedirs(config.output_folder_path, exist_ok=True)
@@ -53,6 +55,7 @@ def main():
     parser.add_argument("--load-only", action="store_true", help="(optional) Only load targets, do not reactivate")
     parser.add_argument("--reactivate-only", action="store_true", help="(optional) Only reactivate targets, do not load")
     parser.add_argument("--api-version", type=str, help="(optional) API version to use (default 2024-10-15)", default="2024-10-15")
+    parser.add_argument("--threads", type=int, help="(optional) Number of threads to use (default 5)", default=5)
     args = parser.parse_args()
     
     initialize(args)

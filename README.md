@@ -16,7 +16,7 @@ Prepare Dev:
 ## Running
 
 ```
-usage: main.py [-h] --org ORG [--limit LIMIT] [--load-only] [--reactivate-only] [--api-version API_VERSION]
+usage: main.py [-h] --org ORG [--limit LIMIT] [--load-only] [--reactivate-only] [--api-version API_VERSION] [--threads THREADS]
 
 options:
   -h, --help                show this help message and exit
@@ -25,6 +25,7 @@ options:
   --load-only               (optional) Only load targets, do not reactivate
   --reactivate-only         (optional) Only reactivate targets, do not load
   --api-version API_VERSION (optional) API version to use (default 2024-10-15)
+  --threads THREADS         (optional) Number of threads to use (default 5)
 ```
 
 

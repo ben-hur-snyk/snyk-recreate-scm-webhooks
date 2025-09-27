@@ -1,7 +1,9 @@
 import json
+import concurrent.futures
 from config import Config
 from snyk_api import SnykApi
 from logger import Logger
+
 
 
 class ReactivateTargets:
@@ -19,25 +21,31 @@ class ReactivateTargets:
         self._load_targets()
         self.logger.info(f"targets to reactivate: {len(self._targets_to_reactivate)}")
 
-        for target in self._targets_to_reactivate:
-            project_id = target.get("project_id")
-            target_name = target.get("target_name")
-
-            try:
-                self.snyk_api.deactivate_project(
-                    self.config.org_id,
-                    project_id
-                )
-                
-                self.snyk_api.activate_project(
-                    self.config.org_id, project_id
-                )
-
-                self.targets_reactivated.append(target)
-                self.logger.success(f"reactivate target {target_name} | project_id: {project_id}")
-            except Exception as e:
-                self.logger.error(f"reactivating target {target_name} | project_id: {project_id} | error: {str(e)}")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.config.threads) as executor:
+            futures = [executor.submit(self._reactivate_target, target) for target in self._targets_to_reactivate]
+            
+            for future in concurrent.futures.as_completed(futures):
+                future.result()
+            
         
+    def _reactivate_target(self, target):
+        project_id = target.get("project_id")
+        target_name = target.get("target_name")
+
+        try:
+            self.snyk_api.deactivate_project(
+                self.config.org_id,
+                project_id
+            )
+            
+            self.snyk_api.activate_project(
+                self.config.org_id, project_id
+            )
+
+            self.targets_reactivated.append(target)
+            self.logger.success(f"reactivate target {target_name} | project_id: {project_id}")
+        except Exception as e:
+            self.logger.error(f"reactivating target {target_name} | project_id: {project_id} | error: {str(e)}")
 
     def _load_targets(self):
         with open(self.config.targets_file_path, "r") as f:

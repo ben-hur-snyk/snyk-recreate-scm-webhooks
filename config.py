@@ -8,6 +8,7 @@ class Config:
         self.load_only = False
         self.reactivate_only = False
         self.api_version = "2024-10-15"
+        self.threads = 5
         self.snyk_token = os.environ.get("SNYK_TOKEN")
         self.snyk_base_api_url = "https://api.snyk.io"
         self.output_folder_path = ".output"
