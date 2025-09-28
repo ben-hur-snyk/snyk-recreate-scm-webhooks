@@ -21,8 +21,10 @@ def print_banner(config: Config):
 
     print(f"Organization ID: {config.org_id}")
     print(f"Targets limit: {config.limit if config.limit > 0 else 'All Targets'}")
+    print(f"Integrations filter: {', '.join(config.integrations) if config.integrations else 'All Integrations'}")
     print(f"Load Only: {config.load_only}")
     print(f"Reactivate Only: {config.reactivate_only}")
+    print(f"Include CLI Origin: {config.include_cli_origin}")
     print(f"Snyk API Version: {config.api_version}")
     print(f"Threads: {config.threads}")
     print()
@@ -34,8 +36,10 @@ def initialize(args):
     config = Config()
     config.org_id = args.org
     config.limit = args.limit
+    config.integrations = args.integrations
     config.load_only = args.load_only
     config.reactivate_only = args.reactivate_only
+    config.include_cli_origin = args.include_cli_origin
     config.api_version = args.api_version
     config.threads = args.threads
     config.validate()
@@ -49,11 +53,13 @@ def initialize(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Reactivate projects.')
+    parser = argparse.ArgumentParser(description='Recreate SCM Webhooks.')
     parser.add_argument("--org", type=str, required=True, help="Organization ID")
-    parser.add_argument("--limit", type=int, help="(optional) Limit number of targets to process (0 for no limit, default 3)", default=3)
-    parser.add_argument("--load-only", action="store_true", help="(optional) Only load targets, do not reactivate")
-    parser.add_argument("--reactivate-only", action="store_true", help="(optional) Only reactivate targets, do not load")
+    parser.add_argument("--limit", type=int, help="(optional) Limit number of targets to process (default all projects)", default=0)
+    parser.add_argument("--integrations", nargs='*', type=str, help="(optional) Reactivate targets only for selected integrations, e.g. --integrations github bitbucket gitlab", default=[])
+    parser.add_argument("--load-only", action="store_true", help="(optional) Only load targets, do not reactivate", default=False)
+    parser.add_argument("--reactivate-only", action="store_true", help="(optional) Only reactivate targets, do not load", default=False)
+    parser.add_argument("--include-cli-origin", action="store_true", help="(optional) By default, all cli upload/monitor are ignore. Add this option to include them.", default=False)
     parser.add_argument("--api-version", type=str, help="(optional) API version to use (default 2024-10-15)", default="2024-10-15")
     parser.add_argument("--threads", type=int, help="(optional) Number of threads to use (default 5)", default=5)
     args = parser.parse_args()

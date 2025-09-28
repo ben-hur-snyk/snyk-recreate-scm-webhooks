@@ -2,6 +2,16 @@
 
 To recreated a missing webhook for a repo, we just need to deactivate and reactivate one project inside that repo.
 
+What this tool does:
+
+1. Get projects for the selected Org.
+2. Select one project for each target (repo).
+3. Save all targets with project to a file (`targets_to_reactivate.json`).
+4. Load the file containing the targets to reactivate.
+5. For each target/project, deactivate and reactivate.
+
+This will recreate the webhook for the target.
+
 ## Setup
 
 Requirements:
@@ -16,16 +26,23 @@ Prepare Dev:
 ## Running
 
 ```
-usage: main.py [-h] --org ORG [--limit LIMIT] [--load-only] [--reactivate-only] [--api-version API_VERSION] [--threads THREADS]
+usage: main.py [-h] --org ORG [--limit LIMIT] [--integrations [INTEGRATIONS ...]] [--load-only] [--reactivate-only] [--include-cli-origin] [--api-version API_VERSION]
+               [--threads THREADS]
+
+Recreate SCM Webhooks.
 
 options:
-  -h, --help                show this help message and exit
-  --org ORG                 Organization ID
-  --limit LIMIT             (optional) Limit number of targets to process (0 for no limit, default 3)
-  --load-only               (optional) Only load targets, do not reactivate
-  --reactivate-only         (optional) Only reactivate targets, do not load
-  --api-version API_VERSION (optional) API version to use (default 2024-10-15)
-  --threads THREADS         (optional) Number of threads to use (default 5)
+  -h, --help            show this help message and exit
+  --org ORG             Organization ID
+  --limit LIMIT         (optional) Limit number of targets to process (default all projects)
+  --integrations [INTEGRATIONS ...]
+                        (optional) Reactivate targets only for selected integrations, e.g. --integrations github bitbucket gitlab
+  --load-only           (optional) Only load targets, do not reactivate
+  --reactivate-only     (optional) Only reactivate targets, do not load
+  --include-cli-origin  (optional) By default, all cli upload/monitor are ignore. Add this option to include them.
+  --api-version API_VERSION
+                        (optional) API version to use (default 2024-10-15)
+  --threads THREADS     (optional) Number of threads to use (default 5)
 ```
 
 

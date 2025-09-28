@@ -7,6 +7,8 @@ class Config:
         self.limit = 3
         self.load_only = False
         self.reactivate_only = False
+        self.include_cli_origin = False
+        self.integrations = []
         self.api_version = "2024-10-15"
         self.threads = 5
         self.snyk_token = os.environ.get("SNYK_TOKEN")

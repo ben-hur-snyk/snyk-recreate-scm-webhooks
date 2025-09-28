@@ -14,8 +14,9 @@
                 "python": "${workspaceFolder}/.venv/bin/python",
                 "args": [
                     "--org", "65523c0b-3a89-4f55-a819-11c497a7c0d3",
-                    "--limit", "0",
-                    "--threads", "10"
+                    "--limit", "100",
+                    "--threads", "10",
+                    "--integrations", "azure-repos"
                 ],
                 "envFile": "${workspaceFolder}/.env"
             },

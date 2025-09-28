@@ -17,14 +17,14 @@ class LoadTargets:
         response = self.snyk_api.get_org_projects(self.config.org_id)
 
         projects = response.get('data', [])
-        self._bind_targets_to_reactivate(projects)
+        self._filter_targets_to_reactivate(projects)
 
         next_url = response.get('links', {}).get('next')
         
         while next_url and not self._targets_limit_reached():
             response = self.snyk_api.get_org_projects_next_page(next_url)
             projects = response.get('data', [])
-            self._bind_targets_to_reactivate(projects)
+            self._filter_targets_to_reactivate(projects)
             next_url = response.get('links', {}).get('next')
 
         self._save_results()        
@@ -46,19 +46,37 @@ class LoadTargets:
             json.dump(json_data, f, indent=4)
 
     
-    def _bind_targets_to_reactivate(self, projects):
+    def _filter_targets_to_reactivate(self, projects):
         for project in projects:
             if self._targets_limit_reached():
                 return
-            
+
             target_name = project.get('attributes', {}).get('name', "").split(":")[0]
             project_id = project.get('id')
 
-            if target_name in self.targets_to_reactivate:
+            if self._should_ignore_project(project):
                 continue
 
             self.targets_to_reactivate[target_name] = project_id
     
+
+    def _should_ignore_project(self, project):
+        target_name = project.get('attributes', {}).get('name', "").split(":")[0]
+
+        if target_name in self.targets_to_reactivate:
+            return True
+        
+        origin = project.get('attributes', {}).get('origin', "")
+
+        if not self.config.include_cli_origin and origin == "cli":
+            return True
+        
+        has_integration_restriction = len(self.config.integrations) > 0
+        if has_integration_restriction and origin not in self.config.integrations:
+            return True
+
+        return False
+
 
     def _targets_limit_reached(self):
         return self.config.limit > 0 and len(self.targets_to_reactivate) >= self.config.limit
