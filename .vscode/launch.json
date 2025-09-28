@@ -16,8 +16,7 @@
                     "--org", "65523c0b-3a89-4f55-a819-11c497a7c0d3",
                     "--limit", "30",
                     "--threads", "10",
-                    "--integrations", "azure-repos",
-                    "--retry-failed"
+                    "--origins", "azure-repos"
                 ],
                 "envFile": "${workspaceFolder}/.env"
             },

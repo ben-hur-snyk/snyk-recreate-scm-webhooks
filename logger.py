@@ -12,13 +12,13 @@ class Logger:
     
     @staticmethod
     def init(config: Config):
-        Logger._instance = Logger(config).create()
+        Logger._instance = Logger(config)._create()
 
     @staticmethod
     def get_instance():
         return Logger._instance
 
-    def create(self):
+    def _create(self):
         # 1. Create a logger
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)  # Set the minimum level for the logger

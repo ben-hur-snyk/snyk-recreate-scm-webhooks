@@ -16,7 +16,7 @@ class LoadProjects:
 
     def execute(self):
         self.logger.info(f"loading projects for ORG {self.config.org_id}")
-        response = self.snyk_api.get_org_projects(self.config.org_id)
+        response = self.snyk_api.get_org_projects(self.config.org_id, self.config.origins)
 
         self._parse_api_response_projects(response)
 
@@ -37,14 +37,14 @@ class LoadProjects:
 
         for project in projects:
             target_name = project.get('attributes', {}).get('name', "").split(":")[0]
-            integration = project.get('attributes', {}).get('origin', "")
+            origin = project.get('attributes', {}).get('origin', "")
             project_id = project.get('id')
 
             result.append(
                 ProjectModel(
                     target_name=target_name,
                     project_id=project_id,
-                    integration=integration
+                    origin=origin
                 )
             )
 
@@ -81,11 +81,7 @@ class LoadProjects:
         if project.target_name in self._targets_to_reactivate:
             return True
 
-        if not self.config.include_cli_origin and project.integration == "cli":
-            return True
-        
-        has_integration_restriction = len(self.config.integrations) > 0
-        if has_integration_restriction and project.integration not in self.config.integrations:
+        if not self.config.include_cli_origin and project.origin == "cli":
             return True
 
         return False

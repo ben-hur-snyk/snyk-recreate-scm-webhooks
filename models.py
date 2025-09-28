@@ -1,17 +1,21 @@
+class EnabledModules:
+    def __init__(self, load: bool = True, reactivate: bool = True):
+        self.load = load
+        self.reactivate = reactivate
 
 
 class ProjectModel:
-    def __init__(self, target_name: str, project_id: str, integration: str):
+    def __init__(self, target_name: str, project_id: str, origin: str):
         self.target_name = target_name
         self.project_id = project_id
-        self.integration = integration
+        self.origin = origin
 
     
     def to_json(self):
         return {
             "target_name": self.target_name,
             "project_id": self.project_id,
-            "integration": self.integration
+            "origin": self.origin
         }
     
     @staticmethod
@@ -19,7 +23,7 @@ class ProjectModel:
         result = ProjectModel(
             target_name=json_data.get("target_name"),
             project_id=json_data.get("project_id"),
-            integration=json_data.get("integration")
+            origin=json_data.get("origin")
         )
         return result
 
