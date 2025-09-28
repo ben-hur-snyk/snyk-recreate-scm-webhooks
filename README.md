@@ -17,6 +17,9 @@ After this process, it will generate the following files:
 - `app.log`: the process logs file
 
 
+![demo](docs/demo.gif)
+
+
 ## Setup
 
 Requirements:
