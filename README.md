@@ -28,6 +28,12 @@ Prepare Dev:
 - Run `uv sync`
 - Activate venv `source .venv/bin/activate`
 
+DotEnv: create a `.env` file with:
+
+```
+SNYK_TOKEN="token f19c24d8-******-8ea57a21da09"
+```
+
 ## Running
 
 ```
