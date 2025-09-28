@@ -10,7 +10,11 @@ What this tool does:
 4. Load the file containing the targets to reactivate.
 5. For each target/project, deactivate and reactivate.
 
-This will recreate the webhook for the target.
+After this process, it will generate two files:
+
+- `reactivated_projects.json`: all the successfuly reactivated projects
+- `failed_projects_reactivation.json`: all the failed reactivation projects
+
 
 ## Setup
 
@@ -28,22 +32,6 @@ Prepare Dev:
 ```
 usage: main.py [-h] --org ORG [--limit LIMIT] [--origins [ORIGINS ...]] [--load-only] [--reactivate-only] [--include-cli-origin] [--retry-failed]
                [--api-version API_VERSION] [--threads THREADS]
-
-Recreate SCM Webhooks.
-
-options:
-  -h, --help            show this help message and exit
-  --org ORG             Organization ID
-  --limit LIMIT         (optional) Limit number of targets to process (default all projects)
-  --origins [ORIGINS ...]
-                        (optional) Reactivate projects only for selected origins, e.g. --origins github bitbucket gitlab
-  --load-only           (optional) Only load projects, do not reactivate
-  --reactivate-only     (optional) Only reactivate projects, do not load
-  --include-cli-origin  (optional) By default, all cli upload/monitor are ignore. Add this option to include them.
-  --retry-failed        (optional) Only retry failed reactivation projects only
-  --api-version API_VERSION
-                        (optional) API version to use (default 2024-10-15)
-  --threads THREADS     (optional) Number of threads to use (default 5)
 ```
 
 ### Options
@@ -76,7 +64,7 @@ After this, it will read this file and reactivate each project.
 To not fetch the projects and only reactivate the projects, use this option. e.g. `--reactivate-only`
 
 
-### `--include-cli-origin`
+#### `--include-cli-origin`
 By default, the tool not include projects created from `CLI`. To include them, use this option. e.g. `--include-cli-origin`
 
 
@@ -97,13 +85,13 @@ Use this option to configure which api version to use. e.g. `--api-version 2024-
 You can configure the number of threads for reactivation process. e.g. `--threads 5`
 
 
-
-Example:
+## Example:
 
 ```sh
 export SNYK_TOKEN="token f19c*********21da09"
-python main.py --org 65523c0b-3a89-4f55-a819-11c497a7c0d3 --limit 0
+python main.py --org 65523c0b-3a89-4f55-a819-11c497a7c0d3
 ```
+
 
 ## Run with Docker
 
@@ -114,5 +102,5 @@ SNYK_TOKEN="token f19c********a09"
 ORG_ID="65523c0b-3a89-4f55-a819-11c497a7c0d3"
 
 docker build -t snyk-recreate-scm-webhooks .
-docker run --rm -e SNYK_TOKEN="$SNYK_TOKEN" snyk-recreate-scm-webhooks --org $ORG_ID --limit 0
+docker run --rm -e SNYK_TOKEN="$SNYK_TOKEN" snyk-recreate-scm-webhooks --org $ORG_ID
 ```
