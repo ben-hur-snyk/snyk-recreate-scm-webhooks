@@ -5,6 +5,7 @@ ADD . /app
 
 WORKDIR /app
 
+RUN rm .env
 RUN uv sync --locked
 
 ENTRYPOINT ["uv", "run", "python", "main.py"]

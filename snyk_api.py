@@ -1,4 +1,5 @@
 import requests
+import urllib.parse
 from config import Config
 
 class SnykApi:
@@ -7,11 +8,16 @@ class SnykApi:
         self._ORG_API_LIMIT = 100
 
     
-    def get_org_projects(self, org_id, origins = []):
+    def get_org_projects(self, org_id, origins = [], project_ids = []):
         url = f"{self.config.snyk_base_api_url}/rest/orgs/{org_id}/projects?version={self.config.api_version}&limit={self._ORG_API_LIMIT}"
 
         if len(origins) > 0:
-            url += f"&origins={','.join(origins)}"
+            for origin in origins:
+                url += f"&origins={origin}"
+
+        if len(project_ids) > 0:
+            for project_id in project_ids:
+                url += f"&ids={project_id}"
 
         response = requests.get(
             url=url,

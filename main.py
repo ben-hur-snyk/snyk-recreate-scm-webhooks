@@ -25,7 +25,7 @@ def print_banner(terminal: TerminalUI, config: Config):
     config_str = lambda txt: f"[yellow]{txt}[/yellow]"
 
     terminal.table.add_row("Organization ID", config_str(config.org_id))
-    terminal.table.add_row("Targets limit", config_str(f"{config.limit if config.limit > 0 else 'All Targets'}"))
+    terminal.table.add_row("Project Ids", config_str(", ".join(config.project_ids) if config.project_ids else "All Projects"))
     terminal.table.add_row("Origins filter", config_str(", ".join(config.origins) if config.origins else "All Origins"))
     terminal.table.add_row("Load Only", config_str(config.load_only))
     terminal.table.add_row("Reactivate Only", config_str(config.reactivate_only))
@@ -56,7 +56,7 @@ def get_enabled_modules(config: Config) -> EnabledModules:
 
 def initialize(args, config: Config):
     config.org_id = args.org
-    config.limit = args.limit
+    config.project_ids = args.project_ids
     config.origins = args.origins
     config.load_only = args.load_only
     config.reactivate_only = args.reactivate_only
@@ -72,7 +72,7 @@ def initialize(args, config: Config):
 def main():
     parser = argparse.ArgumentParser(description='Recreate SCM Webhooks.')
     parser.add_argument("--org", type=str, required=True, help="Organization ID")
-    parser.add_argument("--limit", type=int, help="(optional) Limit number of targets to process (default all projects)", default=0)
+    parser.add_argument("--project-ids", nargs='*', type=str, help="(optional) Reactivate projects only for selected ids, e.g. --project-ids b126bdb2-752a-43e2-83a0-9960212a0096", default=[])
     parser.add_argument("--origins", nargs='*', type=str, help="(optional) Reactivate projects only for selected origins, e.g. --origins github bitbucket gitlab", default=[])
     parser.add_argument("--load-only", action="store_true", help="(optional) Only load projects, do not reactivate", default=False)
     parser.add_argument("--reactivate-only", action="store_true", help="(optional) Only reactivate projects, do not load", default=False)

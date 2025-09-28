@@ -22,15 +22,10 @@ class LoadProjects:
         self.terminal_ui.print(f"[bold]Loading projects for ORG: [/bold][yellow]{self.config.org_id}[/yellow]")
 
         self.terminal_ui.status.create("Loading projects")
-        response = self.snyk_api.get_org_projects(self.config.org_id, self.config.origins)
-        self._parse_api_response_projects(response)
 
-        next_url = response.get('links', {}).get('next')
-        
-        while next_url and not self._targets_limit_reached():
-            response = self.snyk_api.get_org_projects_next_page(next_url)
-            self._parse_api_response_projects(response)
-            next_url = response.get('links', {}).get('next')
+        response = self._fetch_projects_from_api()
+        projects = self._parse_api_response_projects(response)
+        self._filter_projects_to_reactivate(projects)
 
         self.terminal_ui.status.stop()
         self.terminal_ui.print(
@@ -45,10 +40,27 @@ class LoadProjects:
         return len(self._targets_to_reactivate)
 
 
-    def _parse_api_response_projects(self, response):
-        result = []
+    def _fetch_projects_from_api(self):
+        projects = []
+        response = self.snyk_api.get_org_projects(
+            self.config.org_id,
+            self.config.origins,
+            self.config.project_ids
+        )
 
-        projects = response.get('data', [])
+        projects.extend(response.get('data', []))
+
+        next_url = response.get('links', {}).get('next')
+        
+        while next_url:
+            response = self.snyk_api.get_org_projects_next_page(next_url)
+            projects.extend(response.get('data', []))
+            next_url = response.get('links', {}).get('next')
+
+        return projects
+
+    def _parse_api_response_projects(self, projects):
+        result = []
 
         for project in projects:
             target_name = project.get('attributes', {}).get('name', "").split(":")[0]
@@ -63,7 +75,7 @@ class LoadProjects:
                 )
             )
 
-        self._filter_projects_to_reactivate(result)
+        return result
 
 
     def _save_results(self):
@@ -89,9 +101,6 @@ class LoadProjects:
     
     def _filter_projects_to_reactivate(self, projects):
         for project in projects:
-            if self._targets_limit_reached():
-                return
-
             if self._should_ignore_project(project):
                 continue
 
@@ -106,7 +115,3 @@ class LoadProjects:
             return True
 
         return False
-
-
-    def _targets_limit_reached(self):
-        return self.config.limit > 0 and len(self._targets_to_reactivate) >= self.config.limit

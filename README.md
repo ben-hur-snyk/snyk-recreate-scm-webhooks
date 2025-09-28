@@ -31,7 +31,7 @@ Prepare Dev:
 ## Running
 
 ```
-usage: main.py [-h] --org ORG [--limit LIMIT] [--origins [ORIGINS ...]] [--load-only] [--reactivate-only] [--include-cli-origin] [--retry-failed]
+usage: main.py [-h] --org ORG --project-ids [PROJECT_IDS ...] [--origins [ORIGINS ...]] [--load-only] [--reactivate-only] [--include-cli-origin] [--retry-failed]
                [--api-version API_VERSION] [--threads THREADS]
 ```
 
@@ -41,35 +41,35 @@ usage: main.py [-h] --org ORG [--limit LIMIT] [--origins [ORIGINS ...]] [--load-
 The Organization ID. e.g. `--org 65523c0b-3a89-4f55-a819-11c497a7c0d3`
 
 
-#### `--limit`
-By default, the tool select one project for each target, all targets. To limit number of targets selected, use this option. e.g. `--limit 10`
+#### `--project-ids [PROJECT_IDS ...]` (optional)
+You can specify which projects should be reactivated using this option. e.g `--project-ids b126bdb2-752a-43e2-83a0-9960212a0096 09a7941d-69d1-4809-a252-514a7657c66e`
 
 
-#### `--origins [ORIGINS ...]`
+#### `--origins [ORIGINS ...]` (optional)
 By default, the tool reactivate one project for each target, all targets in all origins (except created from CLI).
 
 To restrict the origins the tool should fetch projects, use this option. e.g. `--origins github bitbucket`
 
 
-#### `--load-only`
+#### `--load-only` (optional)
 By default, the tool will fetch projects first, then save the projects that need to be reactivated in `projects_to_reactivate.json` file.
 After this, it will read this file and reactivate each project.
 
 To only fetch the projects and not reactivate them, use this option. e.g. `--load-only`
 
 
-#### `--reactivate-only`
+#### `--reactivate-only` (optional)
 By default, the tool will fetch projects first, then save the projects that need to be reactivated in `projects_to_reactivate.json` file.
 After this, it will read this file and reactivate each project.
 
 To not fetch the projects and only reactivate the projects, use this option. e.g. `--reactivate-only`
 
 
-#### `--include-cli-origin`
+#### `--include-cli-origin` (optional)
 By default, the tool not include projects created from `CLI`. To include them, use this option. e.g. `--include-cli-origin`
 
 
-#### `--retry-failed`
+#### `--retry-failed` (optional)
 After reactivate the projects, two files will be created:
 
 - `reactivated_projects.json`: has all the successfuly reactivated projects
@@ -78,11 +78,11 @@ After reactivate the projects, two files will be created:
 If you want to retry the failed projects, use this option. e.g. `--retry-failed`
 
 
-#### `--api-version`
+#### `--api-version` (optional)
 Use this option to configure which api version to use. e.g. `--api-version 2024-10-15`
 
 
-#### `--threads`
+#### `--threads` (optional)
 You can configure the number of threads for reactivation process. e.g. `--threads 5`
 
 

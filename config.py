@@ -4,14 +4,15 @@ import os
 class Config:
     def __init__(self):
         self.org_id = None
-        self.limit = 3
+        self.project_ids = []
+        self.origins = []
         self.load_only = False
         self.reactivate_only = False
         self.include_cli_origin = False
         self.retry_failed = False
-        self.origins = []
         self.api_version = "2024-10-15"
         self.threads = 5
+        
         self.snyk_token = os.environ.get("SNYK_TOKEN")
         self.snyk_base_api_url = "https://api.snyk.io"
         self.output_folder_path = ".output"
