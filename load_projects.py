@@ -2,22 +2,27 @@ import json
 from config import Config
 from snyk_api import SnykApi
 from logger import Logger
+from terminal import TerminalUI
 from models import ProjectModel, ResultModel
 
 
 class LoadProjects:
-    def __init__(self, config: Config, snyk_api: SnykApi, logger: Logger):
+    def __init__(self, config: Config, snyk_api: SnykApi, logger: Logger, terminal_ui: TerminalUI):
         self.config = config
         self.snyk_api = snyk_api
         self.logger = logger
+        self.terminal_ui = terminal_ui
+
 
         self._targets_to_reactivate = {}
         
 
     def execute(self):
-        self.logger.info(f"loading projects for ORG {self.config.org_id}")
-        response = self.snyk_api.get_org_projects(self.config.org_id, self.config.origins)
+        self.logger.info(f"Loading projects for ORG {self.config.org_id}")
+        self.terminal_ui.print(f"[bold]Loading projects for ORG: [/bold][yellow]{self.config.org_id}[/yellow]")
 
+        self.terminal_ui.status.create("Loading projects")
+        response = self.snyk_api.get_org_projects(self.config.org_id, self.config.origins)
         self._parse_api_response_projects(response)
 
         next_url = response.get('links', {}).get('next')
@@ -27,7 +32,17 @@ class LoadProjects:
             self._parse_api_response_projects(response)
             next_url = response.get('links', {}).get('next')
 
+        self.terminal_ui.status.stop()
+        self.terminal_ui.print(
+            f"Found [bold yellow]{len(self._targets_to_reactivate)}[/bold yellow] targets to reactivate"
+        )
+        self.logger.info(f"Found {len(self._targets_to_reactivate)} targets to reactivate")
+
         self._save_results()        
+
+
+    def num_of_projects_to_reactivate(self):
+        return len(self._targets_to_reactivate)
 
 
     def _parse_api_response_projects(self, response):
@@ -64,6 +79,12 @@ class LoadProjects:
 
         with open(self.config.projects_to_reactivate_file_path, "w") as f:
             json.dump(json_data, f, indent=2)
+
+        self.terminal_ui.print(
+            f"Results saved to [yellow]{self.config.projects_to_reactivate_file_path}[/yellow]"
+        )
+        self.logger.info(f"Results saved to {self.config.projects_to_reactivate_file_path}")
+
 
     
     def _filter_projects_to_reactivate(self, projects):

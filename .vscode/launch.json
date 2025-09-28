@@ -14,23 +14,19 @@
                 "python": "${workspaceFolder}/.venv/bin/python",
                 "args": [
                     "--org", "65523c0b-3a89-4f55-a819-11c497a7c0d3",
-                    "--limit", "30",
-                    "--threads", "10",
-                    "--origins", "azure-repos"
+                    "--threads", "3",
                 ],
                 "envFile": "${workspaceFolder}/.env"
             },
             {
-                "name": "Python: Unit Tests",
-                "type": "python",
+                "name": "Python: Debug ",
+                "type": "debugpy",
                 "request": "launch",
-                "module": "unittest",
-                "args": [
-                    "discover",
-                    "-s", "tests"
-                ],
+                "program": "${workspaceFolder}/debug.py",
                 "console": "integratedTerminal",
-                "python": "${workspaceFolder}/.venv/bin/python"
-            }
+                "python": "${workspaceFolder}/.venv/bin/python",
+                "args": [],
+                "envFile": "${workspaceFolder}/.env"
+            },
     ]
 }

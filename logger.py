@@ -29,19 +29,13 @@ class Logger:
         )
 
         # --- Setup FileHandler (for output to a file) ---
-        file_handler = logging.FileHandler(f"{os.path.join(self.config.output_folder_path, 'app.log')}")
+        file_handler = logging.FileHandler(self.config.log_file_path)
         file_handler.setLevel(logging.DEBUG) # Set minimum level for the file
         file_handler.setFormatter(formatter)
 
-        # --- Setup StreamHandler (for output to stdio/console) ---
-        # By default, StreamHandler outputs to sys.stderr
-        stream_handler = logging.StreamHandler(sys.stdout) # Explicitly set to stdout
-        stream_handler.setLevel(logging.DEBUG) # Set minimum level for the console
-        stream_handler.setFormatter(formatter)
-
         # 3. Add the handlers to the logger
         logger.addHandler(file_handler)
-        logger.addHandler(stream_handler)
+        # logger.addHandler(stream_handler)
 
         self._logger = logger
 

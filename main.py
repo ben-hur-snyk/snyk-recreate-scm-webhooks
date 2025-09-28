@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import argparse
 import os
 from config import Config
@@ -6,24 +9,31 @@ from logger import Logger
 from load_projects import LoadProjects
 from reactivate_projects import ReactivateProjects
 from models import EnabledModules
+from terminal import TerminalUI
 
 
 
-def print_banner(config: Config):
+def print_banner(terminal: TerminalUI, config: Config):
     with open("banner.txt", "r") as f:
         banner = f.read()
-        print(banner)
+        terminal.print(banner)
 
-    print(f"Organization ID: {config.org_id}")
-    print(f"Targets limit: {config.limit if config.limit > 0 else 'All Targets'}")
-    print(f"Origins filter: {', '.join(config.origins) if config.origins else 'All Origins'}")
-    print(f"Load Only: {config.load_only}")
-    print(f"Reactivate Only: {config.reactivate_only}")
-    print(f"Include CLI Origin: {config.include_cli_origin}")
-    print(f"Retry Failed: {config.retry_failed}")
-    print(f"Snyk API Version: {config.api_version}")
-    print(f"Threads: {config.threads}")
-    print()
+    terminal.table.create("Configuration")
+    terminal.table.add_column("Config")
+    terminal.table.add_column("Value")
+
+    config_str = lambda txt: f"[yellow]{txt}[/yellow]"
+
+    terminal.table.add_row("Organization ID", config_str(config.org_id))
+    terminal.table.add_row("Targets limit", config_str(f"{config.limit if config.limit > 0 else 'All Targets'}"))
+    terminal.table.add_row("Origins filter", config_str(", ".join(config.origins) if config.origins else "All Origins"))
+    terminal.table.add_row("Load Only", config_str(config.load_only))
+    terminal.table.add_row("Reactivate Only", config_str(config.reactivate_only))
+    terminal.table.add_row("Include CLI Origin", config_str(config.include_cli_origin))
+    terminal.table.add_row("Retry Failed", config_str(config.retry_failed))
+    terminal.table.add_row("Snyk API Version", config_str(config.api_version))
+    terminal.table.add_row("Threads", config_str(config.threads))
+    terminal.table.print()
 
 
 def get_enabled_modules(config: Config) -> EnabledModules:
@@ -75,29 +85,49 @@ def main():
     config = Config()
     initialize(args, config)
 
-    print_banner(config)
+    terminal_ui = TerminalUI(config)
+
+    print_banner(terminal_ui, config)
 
     Logger.init(config)
     logger = Logger.get_instance()
 
     snyk_api = SnykApi(config)
 
-    logger.info("Started")
+    logger.info("\n========== Started ==========")
 
     modules = get_enabled_modules(config)
 
+    num_projects_to_reactivate = 0
+    num_project_reactivated = 0
+    num_failed_reactivation_projects = 0
+
     if modules.load:
-        load_projects = LoadProjects(config, snyk_api, logger)
+        load_projects = LoadProjects(config, snyk_api, logger, terminal_ui)
         load_projects.execute()
+
+        num_projects_to_reactivate = load_projects.num_of_projects_to_reactivate()
     
     if modules.reactivate:
-        reactivate_projects = ReactivateProjects(config, snyk_api, logger)
+        reactivate_projects = ReactivateProjects(config, snyk_api, logger, terminal_ui)
         reactivate_projects.execute()
 
-    logger.info("---")
-    logger.info("Finished")
+        num_projects_to_reactivate = reactivate_projects.num_of_projects_to_reactivate()
+        num_project_reactivated = reactivate_projects.num_of_projects_reactivated()
+        num_failed_reactivation_projects = reactivate_projects.num_of_failed_reactivation_projects()
 
 
+    logger.info(f"Finished: to reactivate: {num_projects_to_reactivate}, reactivated: {num_project_reactivated}, failed: {num_failed_reactivation_projects}")
+    terminal_ui.print(f"Logs saved to [yellow]{os.path.join(config.output_folder_path, 'app.log')}[/yellow]")
+
+    terminal_ui.print("\n")
+    terminal_ui.table.create("Summary")
+    terminal_ui.table.add_column("Item")
+    terminal_ui.table.add_column("Total")
+    terminal_ui.table.add_row("To Reactivate", f"{num_projects_to_reactivate}")
+    terminal_ui.table.add_row("[green]Reactivated[/green]", f"[green]{num_project_reactivated}[/green]")
+    terminal_ui.table.add_row("[red]Failed[/red]", f"[red]{num_failed_reactivation_projects}[/red]")
+    terminal_ui.table.print()
 
 if __name__ == "__main__":
     main()
