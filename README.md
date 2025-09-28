@@ -10,10 +10,11 @@ What this tool does:
 4. Load the file containing the targets to reactivate.
 5. For each target/project, deactivate and reactivate.
 
-After this process, it will generate two files:
+After this process, it will generate the following files:
 
 - `reactivated_projects.json`: all the successfuly reactivated projects
 - `failed_projects_reactivation.json`: all the failed reactivation projects
+- `app.log`: the process logs file
 
 
 ## Setup
@@ -97,10 +98,12 @@ python main.py --org 65523c0b-3a89-4f55-a819-11c497a7c0d3
 
 This project contains a Dockerfile to not depend on python or uv install.
 
+Note: include the `-it` to see progress bar and other colored elements.
+
 ```sh
 SNYK_TOKEN="token f19c********a09"
 ORG_ID="65523c0b-3a89-4f55-a819-11c497a7c0d3"
 
 docker build -t snyk-recreate-scm-webhooks .
-docker run --rm -e SNYK_TOKEN="$SNYK_TOKEN" snyk-recreate-scm-webhooks --org $ORG_ID
+docker run --rm -e SNYK_TOKEN="$SNYK_TOKEN" -it snyk-recreate-scm-webhooks --org $ORG_ID
 ```
